@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken'
-import { configDotenv } from 'dotenv'
-configDotenv();
+import dotenv from 'dotenv'
+dotenv.config();
 export function signAccessToken(payload){
     return new Promise((resolve,reject) =>{
         jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET,{
             algorithm:'HS256',
-            expiresIn: 15 * 60 // 1 hour
+            expiresIn: process.env.ACCESS_TOKEN_LIFE
         },(err,token) =>{
             if(err) reject(err);
             else resolve(token);
@@ -14,14 +14,15 @@ export function signAccessToken(payload){
 }
 export function signRefreshToken(payload){
     return new Promise((resolve,reject) =>{
-        jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET,{
+        jwt.sign(payload,process.env.REFRESH_TOKEN_SECRET,{
             algorithm:'HS256',
-            expiresIn: 15 * 60 // 1 hour
+            expiresIn: process.env.REFRESH_TOKEN_LIFE
         },(err,token) =>{
             if(err) reject(err);
             else resolve(token);
         })
     }) 
+    
 }
 
 

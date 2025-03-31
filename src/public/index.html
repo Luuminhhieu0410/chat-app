@@ -1,137 +1,57 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo Popup bằng jQuery</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<html lang="en">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #basicPopup, #overlay {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-        }
-        #overlay {
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-    </style>
-</head>
-<body>
+<input type="file" id="upload" accept="image/*">
+<script>
+document.getElementById("upload").addEventListener("change", function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    <h2>Demo Popup bằng jQuery</h2>
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = function () {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            console.log(123);
+            const maxWidth = 800; // Kích thước tối đa
+            const maxHeight = 800;
+            let { width, height } = img;
 
-    <!-- Nút mở popup -->
-    <button id="openBasicPopup">Popup đơn giản (jQuery)</button>
-    <button id="openDialog">Popup bằng jQuery UI</button>
-    <button onclick="showSweetAlert()">Popup bằng SweetAlert2</button>
-    <button onclick="showConfirmPopup(123)">Popup xác nhận (SweetAlert2)</button>
+            if (width > maxWidth || height > maxHeight) {
+                const ratio = Math.min(maxWidth / width, maxHeight / height);
+                width *= ratio;
+                height *= ratio;
+            }
 
-    <!-- Popup cơ bản -->
-    <div id="overlay"></div>
-    <div id="basicPopup">
-        <p>Đây là pop-up đơn giản bằng jQuery!</p>
-        <button id="closeBasicPopup">Đóng</button>
-    </div>
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
 
-    <!-- Popup jQuery UI -->
-    <div id="dialog" title="Thông báo">Đây là popup sử dụng jQuery UI.</div>
+            // Chuyển về Blob và upload
+            canvas.toBlob(blob => {
+                const resizedFile = new File([blob], file.name, { type: file.type });
+                // uploadFile(resizedFile); // Gửi lên server
+            }, file.type, 1); // 0.7 là chất lượng ảnh (JPEG)
+        };
+    };
+});
 
-    <script>
-        $(document).ready(function () {
-            // Popup đơn giản với jQuery
-            $("#openBasicPopup").click(function () {
-                $("#basicPopup, #overlay").fadeIn();
-            });
-            $("#closeBasicPopup, #overlay").click(function () {
-                $("#basicPopup, #overlay").fadeOut();
-            });
+function uploadFile(file) {
+    const formData = new FormData();
+    formData.append("avatar", file);
 
-            // Popup với jQuery UI
-            $("#dialog").dialog({ autoOpen: false });
-            $("#openDialog").click(function () {
-                $("#dialog").dialog("open");
-            });
-        });
+    fetch("/test", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => console.log("Uploaded:", data))
+    .catch(error => console.error("Upload error:", error));
+}
+</script>
 
-        // Popup với SweetAlert2
-        function showSweetAlert() {
-            Swal.fire({
-                title: "Thông báo!",
-                text: "Đây là pop-up với SweetAlert2!",
-                icon: "info",
-                confirmButtonText: "OK"
-            });
-        }
 
-        // Popup xác nhận giao dịch
-        function showConfirmPopup(id) {
-            Swal.fire({
-                title: "Mã nguồn số #" + id,
-                text: "Bạn có chắc chắn muốn giao dịch mã nguồn này?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Có",
-                cancelButtonText: "Không",
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return $.post('/ajaxs/buy.php', { id: id }, null, 'json')
-                        .then(data => {
-                            if (data.status == 99) {
-                                return Swal.fire({
-                                    title: 'Giao dịch hoàn tất',
-                                    icon: 'success',
-                                    text: 'Mua thành công mã nguồn #' + id
-                                }).then(() => {
-                                    if (data.redirect) window.location = data.redirect;
-                                    else window.location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Có lỗi',
-                                    icon: 'error',
-                                    html: data.messages
-                                });
-                            }
-                        })
-                        .catch(() => {
-                            Swal.fire({
-                                title: 'Lỗi hệ thống!',
-                                icon: 'error',
-                                text: 'Không thể thực hiện giao dịch.'
-                            });
-                        });
-                }
-            });
-        }
-    </script>
-
-</body>
 </html>

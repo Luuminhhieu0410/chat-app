@@ -7,10 +7,9 @@ export default function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    username: {
+    name: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      unique: "username"
     },
     email: {
       type: DataTypes.STRING(100),
@@ -41,11 +40,11 @@ export default function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "username",
+        name: "name",
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "username" },
+          { name: "name" },
         ]
       },
       {

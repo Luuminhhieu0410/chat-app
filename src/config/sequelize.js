@@ -7,13 +7,19 @@ try {
     host:process.env.DATABASE_HOST,
     dialect:'mysql',
     port: process.env.DATABASE_PORT,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
     // define: {
     //   timestamps:false,
     //   freezeTableName: true, // Tránh tự động đổi tên bảng
     // }
 });
 } catch (error) {
-  console.log("error test : " + error);
+  console.log("error : " + error);
   
 }
 try {

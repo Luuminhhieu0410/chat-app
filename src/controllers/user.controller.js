@@ -1,19 +1,25 @@
-import { signAccessToken,signRefreshToken } from "../helper/jwt.js";
-import client from "../helper/redis.js";
+import fs from "fs";
+import { signAccessToken, signRefreshToken } from "../helper/jwt.js";
 import redisClient from "../helper/redis.js";
-import { userLoginValidate } from "../helper/validate.js";
-import { checkLogin, getNameId, getNameUser } from "../service/user.service.js";
+import { userLoginValidate, userRegisterValidate } from "../helper/validate.js";
+import { checkLogin, getNameId, getNameUser, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
 
 export async function loginUser(req, res, next) {
     try {
         let { email, password } = req.body;
-        let errorValidateMessage = userLoginValidate(req.body);
+        // console.log('test' + email + password);
+        if (!email || !password) {
+            return res.status(500).json({ 'message': "Vui lòng nhập đầy đủ thông tin" });
+        }
+        email = email.trim();
+        password = password.trim();
 
-        if (errorValidateMessage.error) {
-            return res.status(200).json(errorValidateMessage.error.details[0]);
+        let validateMessage = userLoginValidate({email,password});
+        if (validateMessage.error) {
+            return res.status(500).json(validateMessage.error.details[0].message);
         }
         if (!(await checkLogin(email, password))) {
-            return res.status(200).json({ 'messages': 'thông tin không chính xác' })
+            return res.status(201).json({ 'message': 'thông tin không chính xác' })
         }
         let userId = await getNameId(email);
         let name = await getNameUser(email);
@@ -23,24 +29,64 @@ export async function loginUser(req, res, next) {
             'userId': userId,
             'name': name
         }
-        
+
         let access_token = await signAccessToken(payload);
         let refresh_token = await signRefreshToken(payload);
-        
-        await redisClient.set(`refresh_token_${userId}`,refresh_token,{EX : 7 * 24 * 60 * 60}); 
 
-        res.cookie("refresh_token", refresh_token, {
-            httpOnly: true, // document.cookie
-            secure: true, // https
-            sameSite: "Strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
-        });
-       return res.status(201).json({
-        'access_token': access_token,
-        'message': 'đăng nhập thành công'
-       })     
+        // kiểm tra trước khi lưu , khắc phục lỗi đăng nhập trên nhiều thiết bị
+        let refreshTokenInRedis = await redisClient.get(`refresh_token_${userId}`);
+        if (refreshTokenInRedis === null) {
+            await redisClient.set(`refresh_token_${userId}`, refresh_token, { EX: 7 * 24 * 60 * 60 });
+            res.cookie("refresh_token", refresh_token, {
+                httpOnly: true, // document.cookie
+                secure: true, // https
+                sameSite: "Strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
+            });
+        }
+
+        return res.status(201).json({
+            'access_token': access_token,
+            'message': 'đăng nhập thành công'
+        })
 
     } catch (error) {
-        console.log(err);
+        console.log(error);
+        next(error);
     }
+
+}
+
+export async function registerUser(req, res, next) {
+    try {
+        let { email, name, password } = req.body;
+        // console.log(req.file); // dữ liệu file lấy được từ multer , do multer là middleware đứng trước 
+        if (!email || !name || !password) {
+            fs.unlinkSync(req.file.path);
+            return res.status(500).json({ 'message': "Vui lòng nhập đầy đủ thông tin" });
+        }
+        let validateMessage = userRegisterValidate({email,name,password});
+   
+        if(validateMessage.error){
+            fs.unlinkSync(req.file.path);
+            return res.status(500).json({ 'message': validateMessage.error.details[0].message});
+        }
+        if (await checkExits(email)) {
+            fs.unlinkSync(req.file.path);
+            return res.status(500).json({ 'message': 'Email đã tồn tại !' });
+        }
+        const avatar = req.file ? req.file.filename : null;
+        const user = await createUser(name, email, password, avatar);
+        if(createUser) return res.status(201).json({'message':"Đăng kí thành công"})
+        res.status(500).json({'message':"Lỗi đăng ký tài khoản"})
+    } catch (error) {
+        next(error);
+    }
+
+}
+
+export async function getAllUser(req, res, next) {
+    let page = req.params.page;
+    let allUser = await _getAllUser(page);
+    res.status(201).json(allUser);
 }
