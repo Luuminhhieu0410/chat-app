@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express'
 import http from 'http'
-import userRoute from './src/routes/user.route.js'
 import createHttpError from 'http-errors';
 import cookieParser from 'cookie-parser';
 import { refreshToken } from './src/middleware/auth.js';
@@ -10,10 +9,13 @@ import cors from 'cors'
 import path from 'path';
 import multer from 'multer';
 
+import userRoute from './src/routes/user.route.js'
+import messageRoute from './src/routes/message.route.js'
 
 const app = express();
 
 const server = http.createServer(app);
+
 
 app.use(cors());    
 app.use(express.json());
@@ -22,6 +24,7 @@ app.use(cookieParser());
 app.use('/home',express.static(path.join(path.resolve(),'/src/public'))) // lỗi __dirname
 app.use('/user',userRoute);
 app.use('/api/auth/refresh-token',refreshToken)
+app.use('/api/message',messageRoute);;
 
 app.post('/test',multer({dest: 'uploads'}).single('avatar'),(req,res,next) =>{
     console.log('text');    

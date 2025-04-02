@@ -26,17 +26,3 @@ export function signRefreshToken(payload){
 }
 
 
-export function verifyToken(token){
-   
-    return new Promise((resolve,reject) =>{
-        try {
-            jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,payload) =>{
-                if(err) reject(err);
-                else resolve(payload);
-            })
-        } catch (error) {
-            console.log('error : '  + error)
-        }
-    })
-}
-

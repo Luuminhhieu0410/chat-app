@@ -5,15 +5,17 @@ import redisClient from '../helper/redis.js'
 import { signAccessToken } from "../helper/jwt.js";
 import messages from "../models/messages.js";
 config();
-export async function auth(req, res, next) {
+export async function protectRoute(req, res, next) {
     try {
         let access_token = req.header('Authorization').split(' ')[1];
+        if (!access_token) return res.status(401).json({ message: "Unauthorized" });
         // console.log('access_token : ' + access_token);
-        let payload = jwt.verify(access_token, process.env.ACCESS_TOKEN_SECRET, {
-            algorithms: 'HS256'
+        jwt.verify(access_token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
+            if (err) return res.status(403).json({ message: "Token hết hạn hoặc không hợp lệ" });
+            req.user = payload; // Lưu thông tin user vào request đẩy xuống cho route tiếp
+            next(); 
         });
-        // console.log('payload access token: ' + JSON.stringfy(payload));
-        next();
+        // console.log(JSON.stringify(req.user));
     } catch (error) {
         console.log('error auth : ' + error);
         next(createHttpError(401, 'Unauthorizaion'));
@@ -43,5 +45,5 @@ export async function refreshToken(req, res, next) { // tạo access token mới
         console.log(error);
         next(error);
     }   
-
+    
 }

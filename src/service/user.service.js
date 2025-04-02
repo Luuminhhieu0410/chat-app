@@ -1,6 +1,5 @@
 import InitModels from "../models/init-models.js";
 import sequelize from '../config/sequelize.js';
-import { DataTypes, where } from 'sequelize';
 
 
 const initModels = InitModels(sequelize);

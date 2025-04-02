@@ -1,19 +1,18 @@
 import { loginUser, getAllUser, registerUser } from '../controllers/user.controller.js';
 import express from 'express'
-import { auth } from '../middleware/auth.js';
+import { protectRoute } from '../middleware/auth.js';
 import path from 'path';
 import multer from 'multer';
-import fs from 'fs'
-import { checkExits } from '../service/user.service.js';
+
 const route = express.Router();
-let imageName = ''; // biến toàn cục lưu tên để xóa
+let imageName = ''; // biến toàn cục lưu tên để xóa (không cần nữa)
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads')
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname); // Lấy đuôi file (.jpg, .png, ...)
+    const ext = path.extname(file.originalname); // Lấy đuôi file (.jpg, .png)
     imageName = Date.now() + '-' + Math.round(Math.random() * 1E9) + ext;  // biến toàn cục
     cb(null, file.fieldname + '-' + imageName) //Lưu File , fieldname là tên thẻ input client 
   }
@@ -36,5 +35,5 @@ const upload = multer({
 
 route.post('/login', loginUser);
 route.post('/register', upload.single('avatar'), registerUser);
-route.get('/pages/:page', auth, getAllUser);
+route.get('/pages/:page', protectRoute, getAllUser);
 export default route;

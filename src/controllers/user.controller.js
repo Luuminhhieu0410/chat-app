@@ -14,10 +14,10 @@ export async function loginUser(req, res, next) {
         email = email.trim();
         password = password.trim();
 
-        let validateMessage = userLoginValidate({email,password});
-        if (validateMessage.error) {
-            return res.status(500).json(validateMessage.error.details[0].message);
-        }
+        // let validateMessage = userLoginValidate({email,password});
+        // if (validateMessage.error) {
+        //     return res.status(500).json(validateMessage.error.details[0].message);
+        // }
         if (!(await checkLogin(email, password))) {
             return res.status(201).json({ 'message': 'thông tin không chính xác' })
         }
@@ -34,7 +34,7 @@ export async function loginUser(req, res, next) {
         let refresh_token = await signRefreshToken(payload);
 
         // kiểm tra trước khi lưu , khắc phục lỗi đăng nhập trên nhiều thiết bị
-        let refreshTokenInRedis = await redisClient.get(`refresh_token_${userId}`);
+        let refreshTokenInRedis = await redisClient.get(`refresh    _token_${userId}`);
         if (refreshTokenInRedis === null) {
             await redisClient.set(`refresh_token_${userId}`, refresh_token, { EX: 7 * 24 * 60 * 60 });
             res.cookie("refresh_token", refresh_token, {
@@ -49,7 +49,8 @@ export async function loginUser(req, res, next) {
             'access_token': access_token,
             'message': 'đăng nhập thành công'
         })
-
+        
+        
     } catch (error) {
         console.log(error);
         next(error);
