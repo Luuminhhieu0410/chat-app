@@ -1,27 +1,29 @@
-import fs from "fs";
 import { signAccessToken, signRefreshToken } from "../helper/jwt.js";
 import redisClient from "../helper/redis.js";
 import { userLoginValidate, userRegisterValidate } from "../helper/validate.js";
-import { checkLogin, getNameId, getNameUser, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
+import { checkLogin, getIdUser, getNameUser, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
+// import { io } from "../helper/socket.js";
 
-export async function loginUser(req, res, next) {
+export default async function loginUser(req, res, next) {
     try {
+        
         let { email, password } = req.body;
-        // console.log('test' + email + password);
+        console.log('test' + email + password);
         if (!email || !password) {
-            return res.status(500).json({ 'message': "Vui lòng nhập đầy đủ thông tin" });
+            return res.status(500).json({ success: false, 'message': "Vui lòng nhập đầy đủ thông tin" });
         }
-        email = email.trim();
-        password = password.trim();
+
+        // email = email.trim();
+        // password = password.trim();
 
         // let validateMessage = userLoginValidate({email,password});
         // if (validateMessage.error) {
-        //     return res.status(500).json(validateMessage.error.details[0].message);
-        // }
+        //     return res.status(500).json({"message":validateMessage.error.details[0].message});
+        // }    
         if (!(await checkLogin(email, password))) {
-            return res.status(201).json({ 'message': 'thông tin không chính xác' })
+            return res.status(500).json({ success: false, 'message': 'thông tin không chính xác' })
         }
-        let userId = await getNameId(email);
+        let userId = await getIdUser(email);
         let name = await getNameUser(email);
         // console.log(userId + '  ' + name);
         let payload = {
@@ -32,9 +34,9 @@ export async function loginUser(req, res, next) {
 
         let access_token = await signAccessToken(payload);
         let refresh_token = await signRefreshToken(payload);
-
+        // console.log(refresh_token);
         // kiểm tra trước khi lưu , khắc phục lỗi đăng nhập trên nhiều thiết bị
-        let refreshTokenInRedis = await redisClient.get(`refresh    _token_${userId}`);
+        let refreshTokenInRedis = await redisClient.get(`refresh_token_${userId}`);
         if (refreshTokenInRedis === null) {
             await redisClient.set(`refresh_token_${userId}`, refresh_token, { EX: 7 * 24 * 60 * 60 });
             res.cookie("refresh_token", refresh_token, {
@@ -45,12 +47,14 @@ export async function loginUser(req, res, next) {
             });
         }
 
+        
         return res.status(201).json({
             'access_token': access_token,
-            'message': 'đăng nhập thành công'
+            success: true,
+            'message': 'đăng nhập thành công',
+            userId
         })
-        
-        
+
     } catch (error) {
         console.log(error);
         next(error);
@@ -60,26 +64,32 @@ export async function loginUser(req, res, next) {
 
 export async function registerUser(req, res, next) {
     try {
-        let { email, name, password } = req.body;
+        let { email, name, password, captcha } = req.body;
         // console.log(req.file); // dữ liệu file lấy được từ multer , do multer là middleware đứng trước 
-        if (!email || !name || !password) {
+        if (!email || !name || !password || !captcha) {
             fs.unlinkSync(req.file.path);
-            return res.status(500).json({ 'message': "Vui lòng nhập đầy đủ thông tin" });
+            return res.status(500).json({ success: false, 'message': "Vui lòng nhập đầy đủ thông tin" });
         }
-        let validateMessage = userRegisterValidate({email,name,password});
-   
-        if(validateMessage.error){
+
+        if (req.session.captcha !== captcha) {
             fs.unlinkSync(req.file.path);
-            return res.status(500).json({ 'message': validateMessage.error.details[0].message});
+            return res.status(500).json({ success: false, 'message': "Captcha sai hoặc đã hết hạn" });
+        }
+
+        let validateMessage = userRegisterValidate({ email, name, password });
+
+        if (validateMessage.error) {
+            fs.unlinkSync(req.file.path);
+            return res.status(500).json({ success: false, 'message': validateMessage.error.details[0].message });
         }
         if (await checkExits(email)) {
             fs.unlinkSync(req.file.path);
-            return res.status(500).json({ 'message': 'Email đã tồn tại !' });
+            return res.status(500).json({ success: false, 'message': 'Email đã tồn tại !' });
         }
         const avatar = req.file ? req.file.filename : null;
         const user = await createUser(name, email, password, avatar);
-        if(createUser) return res.status(201).json({'message':"Đăng kí thành công"})
-        res.status(500).json({'message':"Lỗi đăng ký tài khoản"})
+        if (createUser) return res.status(201).json({ success: true, 'message': "Đăng kí thành công" })
+        res.status(500).json({ success: false, 'message': "Lỗi đăng ký tài khoản" })
     } catch (error) {
         next(error);
     }
@@ -91,3 +101,8 @@ export async function getAllUser(req, res, next) {
     let allUser = await _getAllUser(page);
     res.status(201).json(allUser);
 }
+
+export async function logOut(req, res, next) {
+
+}
+

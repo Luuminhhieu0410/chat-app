@@ -75,16 +75,24 @@
 //     console.log('File created');
 // });
 
-import fs from 'fs';
-import fetch from 'node-fetch';
-import Cloudflare, { toFile } from 'cloudflare';
+// import fs from 'fs';
+// import fetch from 'node-fetch';
+// import Cloudflare, { toFile } from 'cloudflare';
 
-const client = new Cloudflare();
+// const client = new Cloudflare();
 
-// If you have access to Node `fs` we recommend using `fs.createReadStream()`:
-await client.apiGateway.userSchemas.create({
-  zone_id: 'b16381dfc0184ed88dc82a7c60b3b95a',
-  file: fs.createReadStream('C:/Users/LOQ/Desktop/pj3/uploads/a.jpg'),
-  kind: 'openapi_v3',
-});
-
+// // If you have access to Node `fs` we recommend using `fs.createReadStream()`:
+// await client.apiGateway.userSchemas.create({
+//   zone_id: 'b16381dfc0184ed88dc82a7c60b3b95a',
+//   file: fs.createReadStream('C:/Users/LOQ/Desktop/pj3/uploads/a.jpg'),
+//   kind: 'openapi_v3',
+// });
+ 
+function a (){
+  return new Promise((resolve,reject) =>{
+    let datafetch = fetch("https://jsonplaceholder.typicode.com/todos/5");
+    resolve(datafetch);
+    console.log("trong ham" + datafetch);
+  })
+}
+a().then((data) => data.json()).then(data => console.log(data));

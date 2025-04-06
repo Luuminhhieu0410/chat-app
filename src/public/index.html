@@ -1,57 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
-<input type="file" id="upload" accept="image/*">
-<script>
-document.getElementById("upload").addEventListener("change", function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
+<head>
+    <meta charset="UTF-8">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function (e) {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = function () {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            console.log(123);
-            const maxWidth = 800; // Kích thước tối đa
-            const maxHeight = 800;
-            let { width, height } = img;
+<body>
 
-            if (width > maxWidth || height > maxHeight) {
-                const ratio = Math.min(maxWidth / width, maxHeight / height);
-                width *= ratio;
-                height *= ratio;
-            }
+    <div class="container">
+        <!-- Sidebar danh sách user -->
+        <div class="sidebar">
+            <h3>Người Dùng</h3>
+            <div id="user-list"></div>
+        </div>
 
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
+        <!-- Khu vực chat -->
+        <div class="chat-container">
+            <h3 id="chat-header">Chọn người để chat</h3>
+            <div id="chat-box"></div>
 
-            // Chuyển về Blob và upload
-            canvas.toBlob(blob => {
-                const resizedFile = new File([blob], file.name, { type: file.type });
-                // uploadFile(resizedFile); // Gửi lên server
-            }, file.type, 1); // 0.7 là chất lượng ảnh (JPEG)
-        };
-    };
-});
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
+                <button onclick="sendMessage()">Gửi</button>
+            </div>
+        </div>
+    </div>
 
-function uploadFile(file) {
-    const formData = new FormData();
-    formData.append("avatar", file);
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>  
 
-    fetch("/test", {
-        method: "POST",
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => console.log("Uploaded:", data))
-    .catch(error => console.error("Upload error:", error));
-}
-</script>
+    <!-- <script src="websocket.js"></script> -->
+    
 
+</body>
 
 </html>

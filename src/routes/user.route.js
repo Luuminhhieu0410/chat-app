@@ -1,4 +1,4 @@
-import { loginUser, getAllUser, registerUser } from '../controllers/user.controller.js';
+import loginUser, { getAllUser, registerUser } from '../controllers/user.controller.js';
 import express from 'express'
 import { protectRoute } from '../middleware/auth.js';
 import path from 'path';
@@ -17,6 +17,9 @@ const storage = multer.diskStorage({
     cb(null, file.fieldname + '-' + imageName) //Lưu File , fieldname là tên thẻ input client 
   }
 })
+
+
+
 function fileFilter(req, file, cb) {
   // Chỉ cho phép các file hình ảnh
   if (file.mimetype.startsWith('image/')) {
@@ -31,6 +34,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter
 });
+
 
 
 route.post('/login', loginUser);

@@ -30,7 +30,7 @@ export default function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'messages',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",

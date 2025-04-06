@@ -8,7 +8,7 @@ function clickme(){
   else if(status === 'active') {status = 'pending',alert(2)}
 }
 
-let data = fetch('http://localhost:5000/user/login',{
+let data = await fetch('http://localhost:5000/api/auth/login',{
   headers:{
     "Content-Type": "application/json"
   },
@@ -18,6 +18,7 @@ let data = fetch('http://localhost:5000/user/login',{
     password:"1"
   })
 })
+// let json = await data.json();
 
 
 </script>
@@ -31,7 +32,7 @@ let data = fetch('http://localhost:5000/user/login',{
   <a v-bind:href="linkGG">click to redirect</a>
   <button v-on:click="clickme">Click To Change</button>
   <!-- <RouterView /> -->
-   <p> 123{{ data.then((data) => data.json()).then(data => console.log(data.access_token)) }} </p>
+   <p> 123{{ data.then((data) => data.json()).then(data => console.log(data.message)) }} </p>
 </template>
 
 <style scoped>

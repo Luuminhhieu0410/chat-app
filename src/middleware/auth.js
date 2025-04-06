@@ -3,7 +3,7 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 import redisClient from '../helper/redis.js'
 import { signAccessToken } from "../helper/jwt.js";
-import messages from "../models/messages.js";
+
 config();
 export async function protectRoute(req, res, next) {
     try {
@@ -17,7 +17,8 @@ export async function protectRoute(req, res, next) {
         });
         // console.log(JSON.stringify(req.user));
     } catch (error) {
-        console.log('error auth : ' + error);
+
+        console.log('access token hết hạn ');
         next(createHttpError(401, 'Unauthorizaion'));
     }
 }

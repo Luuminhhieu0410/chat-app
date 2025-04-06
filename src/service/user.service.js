@@ -28,7 +28,7 @@ export async function getNameUser(email) {
     return User[0].user;
 }
 
-export async function getNameId(email) {
+export async function getIdUser(email) {
     let User = await initModels.Users.findAll({
         attributes: ['id'],
         where: {
@@ -41,14 +41,17 @@ export async function getNameId(email) {
 }
 
 export async function getAllUser(page) {
-
-    let offset = (page - 1) * 10;
-    let allUser = await initModels.Users.findAll({
-        attributes: ['id', 'name', 'avatar'],
-        limit: 10,
-        offset: offset
-    })
-    return allUser;
+    try {
+        let offset = (page - 1) * 10;
+        let allUser = await initModels.Users.findAll({
+            attributes: ['id', 'name', 'avatar'],
+            limit: 10,
+            offset: offset
+        })
+        return allUser;
+    } catch (error) {
+        throw error 
+    }
 
 }
 

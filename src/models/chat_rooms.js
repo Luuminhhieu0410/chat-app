@@ -23,7 +23,7 @@ export default function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'chat_rooms',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
