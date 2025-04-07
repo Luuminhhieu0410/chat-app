@@ -51,7 +51,7 @@ route.get('/img',(req,res)=>{
   res.send('<img src="/api/captcha"></img>')
 })
 
-// Route kiểm tra CAPTCHA
+
 // route.post("/verify", express.json(), (req, res) => {
 //   const userInput = req.body.captcha;
 //   if (userInput && req.session.captcha && userInput.toUpperCase() === req.session.captcha) {

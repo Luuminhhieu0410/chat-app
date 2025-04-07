@@ -1,4 +1,4 @@
-import loginUser, { getAllUser, registerUser } from '../controllers/user.controller.js';
+import loginUser, { getAllUser, registerUser ,logOut} from '../controllers/user.controller.js';
 import express from 'express'
 import { protectRoute } from '../middleware/auth.js';
 import path from 'path';
@@ -40,4 +40,5 @@ const upload = multer({
 route.post('/login', loginUser);
 route.post('/register', upload.single('avatar'), registerUser);
 route.get('/pages/:page', protectRoute, getAllUser);
+route.post('/logout',protectRoute,logOut);
 export default route;

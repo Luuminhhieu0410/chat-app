@@ -3,7 +3,7 @@ import redisClient from "../helper/redis.js";
 import { userLoginValidate, userRegisterValidate } from "../helper/validate.js";
 import { checkLogin, getIdUser, getNameUser, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
 // import { io } from "../helper/socket.js";
-
+import fs from 'fs';
 export default async function loginUser(req, res, next) {
     try {
         
@@ -46,7 +46,6 @@ export default async function loginUser(req, res, next) {
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 ngày
             });
         }
-
         
         return res.status(201).json({
             'access_token': access_token,
@@ -103,6 +102,9 @@ export async function getAllUser(req, res, next) {
 }
 
 export async function logOut(req, res, next) {
-
-}
+    let {userId} = req.user // lấy từ protectRoute trong auth.js
+    redisClient.del(`refresh_token_${userId}`);
+    res.clearCookie('refresh_token'); 
+    return res.status(200).json({ message: 'Logged out' }); // client nhận status ok , xóa local storage
+} 
 
