@@ -35,7 +35,7 @@ app.use('/home', express.static(path.join(path.resolve(), '/uploads'))) // lỗi
 app.use('/api/captcha', captchaRoute);
 app.use('/api/auth', userRoute);
 app.use('/api/auth/refresh-token', refreshToken)
-app.use('/api/message', messageRoute);;
+app.use('/api/message', messageRoute);
 
 app.post('/test', multer({ dest: 'uploads' }).single('avatar'), (req, res, next) => {
     console.log('text');

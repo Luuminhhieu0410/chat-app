@@ -1,11 +1,18 @@
 <script setup>
 import router from '@/router';
-import { ref } from 'vue';
+import { ref } from 'vue'; // two way bindding
 
+let urlServer = "http://localhost:5000";
 let isLoading = ref(true);
-let listUser = ref();
+let listUser = ref([]); // danh sách user lấy từ server
+let isChat = ref(false); // kiểm tra đã click vào user để bắt đầu chat chưa
+let historyChat = ref([]); // danh sách chat của 2 user;
+
+
+let senderId = localStorage.getItem('userId');
 let token = localStorage.getItem('access_token');
-fetch('http://localhost:5000/api/auth/pages/1', {
+
+fetch(`${urlServer}/api/auth/pages/1`, {
     headers: {
         "Authorization": `Bearer ${token}`
     }
@@ -23,6 +30,22 @@ fetch('http://localhost:5000/api/auth/pages/1', {
 }).finally(() => {
     isLoading.value = false;
 });
+
+async function clickUserToChat(receiverId) {
+    isChat.value = true;
+    let getChat = await fetch(`${urlServer}/api/message/conversation/${senderId}/${receiverId}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
+    if (getChat.ok) {
+        historyChat.value = await getChat.json();
+        console.log(historyChat.value.length);
+        return;
+    }
+    return router.push('/home/login');
+    // console.log(await getChat.json());
+}
 
 </script>
 
@@ -50,14 +73,12 @@ fetch('http://localhost:5000/api/auth/pages/1', {
                     placeholder="Tìm kiếm..." />
             </div>
 
-           
+
             <div class="space-y-2 overflow-y-auto max-h-[75vh] pr-1">
-                <div v-for="item in listUser" :key="item.id"
+                <div v-for="item in listUser" :key="item.id" @click="clickUserToChat(item.id)"
                     class="flex items-center gap-3 p-2 rounded-xl shadow-sm hover:bg-[#f0f0f0] cursor-pointer transition-all duration-200">
-                  
-                    <img v-bind:src="'http://localhost:5000/home/'+item.avatar" alt="avatar"
+                    <img v-bind:src="urlServer + '/home/' + item.avatar" alt="avatar"
                         class="w-10 h-10 rounded-full object-cover" />
-                   
                     <div class="font-medium text-gray-800">
                         {{ item.name }}
                     </div>
@@ -65,8 +86,16 @@ fetch('http://localhost:5000/api/auth/pages/1', {
             </div>
         </nav>
 
-        <div id="chat" class="w-3/4 h-full my-1 mx-2 border border-white rounded-lg shadow-md bg-white">
-            <!-- Nội dung chat -->
+        <div id="chat" class="w-3/4 h-full my-1 mx-2 border border-white rounded-lg text-center shadow-md bg-white">
+            <h5 v-if="!isChat">Nhấn vào ai đó để bắt đầu chat với họ</h5>
+            <div v-else id="chat-box">
+                <div v-if="historyChat.length === 0">hãy bắt đầu nhắn gì đó để gửi họ</div>
+                <div v-for="chat in historyChat">{{ chat.message }}</div>
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
+                    <button onclick="sendMessage()">Gửi</button>
+                </div>
+            </div>
         </div>
     </div>
 </template>
