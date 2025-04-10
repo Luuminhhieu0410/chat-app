@@ -12,8 +12,8 @@ export async function getMessageForTwo(req, res, next) {
     }
 
     let dataMessage = await _getMessageForTwo(senderId,receiverId);
-    res.json(dataMessage);
-}
+    res.status(201).json(dataMessage);
+}   
 
 export async function sendMessage(req,res,next) {
 

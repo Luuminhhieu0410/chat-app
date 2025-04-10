@@ -7,9 +7,9 @@ let isLoading = ref(true);
 let listUser = ref([]); // danh sách user lấy từ server
 let isChat = ref(false); // kiểm tra đã click vào user để bắt đầu chat chưa
 let historyChat = ref([]); // danh sách chat của 2 user;
+let currentAvatarUser = ref(''); // lấy avatar người đang chat
 
-
-let senderId = localStorage.getItem('userId');
+let userIdLogin = localStorage.getItem('userId');
 let token = localStorage.getItem('access_token');
 
 fetch(`${urlServer}/api/auth/pages/1`, {
@@ -31,9 +31,10 @@ fetch(`${urlServer}/api/auth/pages/1`, {
     isLoading.value = false;
 });
 
-async function clickUserToChat(receiverId) {
-    isChat.value = true;
-    let getChat = await fetch(`${urlServer}/api/message/conversation/${senderId}/${receiverId}`, {
+async function clickUserToChat(receiverId) { // sự kiện click vào ai đó để bắt đầu chat với họ
+    isChat.value = true; // dùng để thay đổi trạng thái của div 
+    currentAvatarUser = listUser.value.find((item) => item.id == receiverId).avatar; // lấy avatar người đang chat để link vào giao diện chat;
+    let getChat = await fetch(`${urlServer}/api/message/conversation/${userIdLogin}/${receiverId}`, {
         headers: {
             "Authorization": `Bearer ${token}`
         }
@@ -86,18 +87,48 @@ async function clickUserToChat(receiverId) {
             </div>
         </nav>
 
-        <div id="chat" class="w-3/4 h-full my-1 mx-2 border border-white rounded-lg text-center shadow-md bg-white">
+        <div id="chat"
+            class="relative w-3/4 container h-full my-1 mx-2 border border-white rounded-lg text-center shadow-md bg-white">
             <h5 v-if="!isChat">Nhấn vào ai đó để bắt đầu chat với họ</h5>
-            <div v-else id="chat-box">
+            <div v-else id="chat-box"
+                class="h-[93%] max-h-[93%] w-full overflow-y-auto mb-2 overflow-x-auto max-w-full px-2">
                 <div v-if="historyChat.length === 0">hãy bắt đầu nhắn gì đó để gửi họ</div>
-                <div v-for="chat in historyChat">{{ chat.message }}</div>
-                <div class="chat-input">
-                    <input type="text" id="message-input" placeholder="Nhập tin nhắn...">
-                    <button onclick="sendMessage()">Gửi</button>
+                <div v-for="chat in historyChat">
+                    <div v-if="chat.sender_id == userIdLogin" class="flex justify-start mb-3">
+                        <img v-bind:src="urlServer + '/home/' + currentAvatarUser" alt="User Avatar"
+                            class="rounded-full w-8 h-8 mr-2">
+                        <div class="bg-gray-200 rounded-xl p-2 max-w-xs break-words">
+                            {{ chat.message }}
+                        </div>
+                    </div>
+                    <div v-else class="flex justify-end mb-2">
+                        <div class="bg-purple-500 text-white rounded-xl p-2 max-w-xs break-words">
+                            {{ chat.message }}
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="w-<0.98> border border-white  bg-white flex flexitems-center absolute right-1 left-1 bottom-2">
+                    <div class="flex justify-around items-center">
+                        <i class="fas fa-plus-circle text-gray-500 mr-3 text-xl"></i>
+                        <i class="far fa-image text-gray-500 mr-3 text-xl"></i>
+                        <i class="far fa-sticky-note text-gray-500 mr-3 text-xl"></i>
+                        <i class="fab fa-gif text-gray-500 mr-2 text-xl"></i>
+                    </div>
+                    <input type="text" placeholder="Aa"
+                        class="grow border-none outline-none rounded-full bg-gray-100 px-4 py-2 mr-2    ">
+                    <div class="flex justify-around items-center">
+                        <i class="far fa-smile text-gray-500 text-xl"></i>
+                        <i class="far fa-thumbs-up text-blue-500 ml-3 text-xl"></i>
+                    </div>
                 </div>
             </div>
+
+
+
         </div>
     </div>
+
 </template>
 
 <style>

@@ -18,8 +18,10 @@ async function LoginForm(e) {
             'password':password
         })
     })
+    // let islogin = localStorage.getItem('userId');
     let dataJson = await response.json();
-    if(response.ok){
+    // console.log(dataJson);
+    if(response.ok ){
         localStorage.setItem('access_token',dataJson.access_token);
         localStorage.setItem('userId',dataJson.userId);
         return router.push('/home/chat');
