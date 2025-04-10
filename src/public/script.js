@@ -16,7 +16,7 @@ let currentChatUser = null;
 
 // danh sách user
 async function loadUsers() {
-    let res = await fetch(`${apiUrl}/api/auth/pages/1`, {
+    let res = await fetch(`${apiUrl}/api/user/pages/1`, {
         headers: { "Authorization": `Bearer ${token}` }
     });
 

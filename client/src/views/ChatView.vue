@@ -12,7 +12,7 @@ let currentAvatarUser = ref(''); // lấy avatar người đang chat
 let userIdLogin = localStorage.getItem('userId');
 let token = localStorage.getItem('access_token');
 
-fetch(`${urlServer}/api/auth/pages/1`, {
+fetch(`${urlServer}/api/user/pages/1`, {
     headers: {
         "Authorization": `Bearer ${token}`
     }

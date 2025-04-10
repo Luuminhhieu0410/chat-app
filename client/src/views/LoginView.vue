@@ -8,7 +8,7 @@ let password ;
 let alertMessage = ref('');
 async function LoginForm(e) {
     e.preventDefault();
-    let response = await fetch(`${urlServer}/api/auth/login`,{
+    let response = await fetch(`${urlServer}/api/user/login`,{
         method:'POST',
         headers:{
             'Content-Type':'application/json',

@@ -1,4 +1,4 @@
-import { getMessageForTwo as _getMessageForTwo,sendMessage as _sendMesssage } from '../service/message.service.js';
+import { getMessageForTwo as _getMessageForTwo,sendMessage as _sendMesssage, deleteMessageInTwo } from '../service/message.service.js';
 import {io} from '../helper/socket.js'
 
 export async function getMessageForTwo(req, res, next) {
@@ -28,3 +28,11 @@ export async function sendMessage(req,res,next) {
     // console.log(alert);
 }
 
+export async function deleteMessage(req,res,next) {
+    let messageId =await deleteMessageInTwo(req.params.messageId);
+    if(messageId !== 0){
+        console.log('xóa thàn công');
+        return res.status(200).json({'message':'xóa tin nhắn thành công'});
+    }
+    return res.status(500).json({'message':'xóa tin nhắn thất bại'});
+}
