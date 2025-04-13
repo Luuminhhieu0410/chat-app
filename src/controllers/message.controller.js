@@ -16,15 +16,15 @@ export async function getMessageForTwo(req, res, next) {
 }   
 
 export async function sendMessage(req,res,next) {
-
     let {message} = req.body;
-    console.log(message);
+    console.log('tin nhan gui ' + message);
     let {receiverId} = req.params;
-    console.log(receiverId);
+    console.log('id nguoi nhan ' + receiverId);
     if(!message) return ;
 
     let senderId = req.user.userId; // lấy từ protectRoute , protectRoute đứng trước
     let alert = await _sendMesssage(message,senderId,receiverId);
+    res.status(200);
     // console.log(alert);
 }
 

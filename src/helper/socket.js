@@ -14,6 +14,10 @@ export {app,io,server};
 io.on("connection", (socket) => {
   console.log("User connected: " + socket.id);
 
+  
+    io.emit('user-connect', socket.id);
+  
+
   socket.on("send-room", (roomId) => {
       socket.join(roomId);
       console.log(`User ${socket.id} joined room: ${roomId}`);

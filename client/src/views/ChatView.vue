@@ -8,9 +8,10 @@ let isLoading = ref(true);
 let listUser = ref([]); // danh sách user lấy từ server
 let isChat = ref(false); // kiểm tra đã click vào user để bắt đầu chat chưa
 let historyChat = ref([]); // danh sách chat của 2 user;
-let currentChatUser = ref(''); // lấy thông tin người đang chat
+let currentChatUser = ref({}); // lấy thông tin người đang chat
 let messageSend = ref(''); // input tin nhắn gửi
 let divChat = ref('');
+let statusUser = ref([]);
 
 let userIdLogin = localStorage.getItem('userId');
 let token = localStorage.getItem('access_token');
@@ -40,11 +41,11 @@ fetch(`${urlServer}/api/user/pages/1`, {
 
 async function clickUserToChat(receiverId) { // sự kiện click vào ai đó để bắt đầu chat với họ
 
-
+    
     isChat.value = true; // dùng để thay đổi trạng thái của div ()
-    currentChatUser = listUser.value.find((item) => item.id == receiverId); // lấy thông tin người đang chat (lấy link ảnh , ...);
+    currentChatUser.value = listUser.value.find((item) => item.id == receiverId); // lấy thông tin người đang chat (lấy link ảnh , ...);
 
-    roomId = [userIdLogin, receiverId].sort().join('_'); // receiverId hoặc currentChatUser.id;
+    roomId = [userIdLogin, receiverId].sort().join('_'); // receiverId hoặc currentChatUser.value.id;
     socket.emit('send-room', roomId); // gửi dữ liệu id phòng cho server
 
     socket.on('receive', (data) => { // event người đăng nhập hiện tại nhận tin nhắn từ server gửi về (server nhận từ người bên kia) ;
@@ -56,20 +57,21 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
         console.log('server send ' + data);
     });
 
-    let getChat = await fetch(`${urlServer}/api/message/conversation/${userIdLogin}/${receiverId}`, {
+    let getChat = await fetch(`${urlServer}/api/message/conversation/${userIdLogin}/${receiverId}`, { // load lịch  sử chat
         headers: {
             "Authorization": `Bearer ${token}`
         }
     });
 
     if (getChat.ok) {
-        historyChat.value = await getChat.json();
+        historyChat.value = await getChat.json(); 
         console.log(historyChat.value.length);
         return;
     }
     return router.push('/home/login');
     // console.log(await getChat.json());
 }
+
 async function sendMessage(e) { // người đăng nhập hiện tại gửi tin nhắn
     e.preventDefault();
 
@@ -78,13 +80,25 @@ async function sendMessage(e) { // người đăng nhập hiện tại gửi tin
         roomId,
         'message': messageSend.value
     }
+    
     await historyChat.value.push({ // hiển thị luôn tin nhắn mới
         "sender_id": userIdLogin,
-        "receiver_id": currentChatUser.id,
+        "receiver_id": currentChatUser.value.id,
         "message": messageSend.value,
     });
     socket.emit('send-message', data); // gửi id phòng và message đến server
     divChat.value.scrollTop = divChat.value.scrollHeight;
+    let postMessage =  await fetch(`${urlServer}/api/message/send/${currentChatUser.value.id}`, {
+        headers: {
+            "Content-Type":'application/json',
+            "Authorization": `Bearer ${token}`
+        },
+        method: 'POST',
+        body:JSON.stringify({
+            'message': messageSend.value
+        })
+    });
+    if(!postMessage.ok) router.push('/home/login');
     messageSend.value = '';
     
 
