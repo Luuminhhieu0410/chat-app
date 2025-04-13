@@ -108,3 +108,7 @@ export async function logOut(req, res, next) {
     return res.status(200).json({ message: 'Logged out' }); // client nhận status ok , xóa local storage
 } 
 
+
+export async function updateDataUser(req,res,next){
+    
+}

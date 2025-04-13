@@ -39,6 +39,7 @@ const upload = multer({
 
 route.post('/login', loginUser);
 route.post('/register', upload.single('avatar'), registerUser);
-route.get('/pages/:page', protectRoute, getAllUser);
+route.post('/pages/:page', protectRoute, getAllUser); // lấy dữ liệu users; 
 route.post('/logout',protectRoute,logOut);
+
 export default route;

@@ -1,21 +1,28 @@
 <script setup>
 import router from '@/router';
 import { ref } from 'vue'; // two way bindding
-
+import { socket } from '@/services/socketIO';
 let urlServer = "http://localhost:5000";
+
 let isLoading = ref(true);
 let listUser = ref([]); // danh sách user lấy từ server
 let isChat = ref(false); // kiểm tra đã click vào user để bắt đầu chat chưa
 let historyChat = ref([]); // danh sách chat của 2 user;
-let currentAvatarUser = ref(''); // lấy avatar người đang chat
+let currentChatUser = ref(''); // lấy thông tin người đang chat
+let messageSend = ref(''); // input tin nhắn gửi
+let divChat = ref('');
 
 let userIdLogin = localStorage.getItem('userId');
 let token = localStorage.getItem('access_token');
 
+let roomId = ''; // lưu id room của socket để gửi lên socket server tạo room cho 2 người
+
+
 fetch(`${urlServer}/api/user/pages/1`, {
     headers: {
         "Authorization": `Bearer ${token}`
-    }
+    },
+    method:'POST'
 }).then((data) => {
     if (data.ok) {
         return data.json();
@@ -32,13 +39,29 @@ fetch(`${urlServer}/api/user/pages/1`, {
 });
 
 async function clickUserToChat(receiverId) { // sự kiện click vào ai đó để bắt đầu chat với họ
-    isChat.value = true; // dùng để thay đổi trạng thái của div 
-    currentAvatarUser = listUser.value.find((item) => item.id == receiverId).avatar; // lấy avatar người đang chat để link vào giao diện chat;
+
+
+    isChat.value = true; // dùng để thay đổi trạng thái của div ()
+    currentChatUser = listUser.value.find((item) => item.id == receiverId); // lấy thông tin người đang chat (lấy link ảnh , ...);
+
+    roomId = [userIdLogin, receiverId].sort().join('_'); // receiverId hoặc currentChatUser.id;
+    socket.emit('send-room', roomId); // gửi dữ liệu id phòng cho server
+
+    socket.on('receive', (data) => { // event người đăng nhập hiện tại nhận tin nhắn từ server gửi về (server nhận từ người bên kia) ;
+        historyChat.value.push({
+            "sender_id": receiverId, // khi này người gửi là người bên kia ;
+            "receiver_id": userIdLogin,  // người nhận là người đang đăng nhập 
+            "message": data,
+        });
+        console.log('server send ' + data);
+    });
+
     let getChat = await fetch(`${urlServer}/api/message/conversation/${userIdLogin}/${receiverId}`, {
         headers: {
             "Authorization": `Bearer ${token}`
         }
     });
+
     if (getChat.ok) {
         historyChat.value = await getChat.json();
         console.log(historyChat.value.length);
@@ -47,7 +70,25 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
     return router.push('/home/login');
     // console.log(await getChat.json());
 }
+async function sendMessage(e) { // người đăng nhập hiện tại gửi tin nhắn
+    e.preventDefault();
 
+    // alert(messageSend.value);
+    let data = {
+        roomId,
+        'message': messageSend.value
+    }
+    await historyChat.value.push({ // hiển thị luôn tin nhắn mới
+        "sender_id": userIdLogin,
+        "receiver_id": currentChatUser.id,
+        "message": messageSend.value,
+    });
+    socket.emit('send-message', data); // gửi id phòng và message đến server
+    divChat.value.scrollTop = divChat.value.scrollHeight;
+    messageSend.value = '';
+    
+
+}
 </script>
 
 <template>
@@ -70,7 +111,7 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
                         d="M23.522 21.662c-.389-.344-.443-.925-.181-1.373a8.5 8.5 0 1 0-3.051 3.051c.447-.261 1.028-.207 1.372.182l3.608 4.073a1.647 1.647 0 1 0 2.325-2.326l-4.073-3.607zm-3.28-9.905a6 6 0 1 1-8.484 8.486 6 6 0 0 1 8.485-8.486z">
                     </path>
                 </svg>
-                <input type="text" class="w-[90%] bg-[#f3f3f5] ml-2 focus:outline-none focus:border-none"
+                <input type="text" class="w-[90%] bg-[#f3f3f5] mx-2 focus:outline-none focus:border-none"
                     placeholder="Tìm kiếm..." />
             </div>
 
@@ -90,19 +131,19 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
         <div id="chat"
             class="relative w-3/4 container h-full my-1 mx-2 border border-white rounded-lg text-center shadow-md bg-white">
             <h5 v-if="!isChat">Nhấn vào ai đó để bắt đầu chat với họ</h5>
-            <div v-else id="chat-box"
+            <div v-else id="chat-box" ref="divChat"
                 class="h-[93%] max-h-[93%] w-full overflow-y-auto mb-2 overflow-x-auto max-w-full px-2">
                 <div v-if="historyChat.length === 0">hãy bắt đầu nhắn gì đó để gửi họ</div>
                 <div v-for="chat in historyChat">
-                    <div v-if="chat.sender_id == userIdLogin" class="flex justify-start mb-3">
-                        <img v-bind:src="urlServer + '/home/' + currentAvatarUser" alt="User Avatar"
+                    <div v-if="chat.receiver_id == userIdLogin" class="flex justify-start mb-3">
+                        <img v-bind:src="urlServer + '/home/' + currentChatUser.avatar" alt="User Avatar"
                             class="rounded-full w-8 h-8 mr-2">
                         <div class="bg-gray-200 rounded-xl p-2 max-w-xs break-words">
                             {{ chat.message }}
                         </div>
                     </div>
                     <div v-else class="flex justify-end mb-2">
-                        <div class="bg-purple-500 text-white rounded-xl p-2 max-w-xs break-words">
+                        <div class="bg-purple-500 text-white rounded-xl p-2 max-w-xs break-words"> 
                             {{ chat.message }}
                         </div>
                     </div>
@@ -115,8 +156,8 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
                         <i class="far fa-sticky-note text-gray-500 mr-3 text-xl"></i>
                         <i class="fab fa-gif text-gray-500 mr-2 text-xl"></i>
                     </div>
-                    <input type="text" placeholder="Aa"
-                        class="grow border-none outline-none rounded-full bg-gray-100 px-4 py-2 mr-2    ">
+                    <form @submit="sendMessage" class=""> <input v-model="messageSend" type="text" placeholder="Aa"
+                            class="grow border-none outline-none rounded-full bg-gray-100 px-4 py-2 mr-2"></form>
                     <div class="flex justify-around items-center">
                         <i class="far fa-smile text-gray-500 text-xl"></i>
                         <i class="far fa-thumbs-up text-blue-500 ml-3 text-xl"></i>

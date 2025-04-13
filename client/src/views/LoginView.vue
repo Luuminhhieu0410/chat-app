@@ -6,6 +6,7 @@ const router = useRouter();
 let email ;
 let password ;
 let alertMessage = ref('');
+
 async function LoginForm(e) {
     e.preventDefault();
     let response = await fetch(`${urlServer}/api/user/login`,{
@@ -16,7 +17,7 @@ async function LoginForm(e) {
         body:JSON.stringify({
             'email':email,
             'password':password
-        })
+        }),
     })
     // let islogin = localStorage.getItem('userId');
     let dataJson = await response.json();
@@ -31,6 +32,8 @@ async function LoginForm(e) {
         return;
     }
 }
+
+
 </script>
 
 <template>
