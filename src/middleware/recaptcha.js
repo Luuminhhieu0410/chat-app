@@ -36,8 +36,10 @@ function generateCaptchaImage(text) {
   return canvas.toBuffer();
 }
 
+
 // Route lấy ảnh CAPTCHA
 route.get("/", (req, res) => {
+  console.log(123);
   const captchaText = generateCaptchaText();
   req.session.captcha = captchaText; // Lưu vào session để lấy ở route khác
   console.log(req.session.captcha);

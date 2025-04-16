@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname); // Lấy đuôi file (.jpg, .png)
-    imageName = Date.now() + '-' + Math.round(Math.random() * 1E9) + ext;  // biến toàn cục
+    imageName = Date.now() + '-' + Math.round(Math.random() * 1E9) + ext;  // biến toàn cục , random tên ảnh
     cb(null, file.fieldname + '-' + imageName) //Lưu File , fieldname là tên thẻ input client 
   }
 })

@@ -65,7 +65,7 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
 
     if (getChat.ok) {
         historyChat.value = await getChat.json(); 
-        console.log(historyChat.value.length);
+        console.log(historyChat.value);
         return;
     }
     return router.push('/home/login');
