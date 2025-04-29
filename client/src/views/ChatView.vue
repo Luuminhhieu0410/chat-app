@@ -154,7 +154,12 @@ async function sendMessage(e) { // người đăng nhập hiện tại gửi tin
                             class="rounded-full w-8 h-8 mr-2">
                         <div class="bg-gray-200 rounded-xl p-2 max-w-xs break-words">
                             {{ chat.message }}
+                            
+                            {{ chat.created_at}}
                         </div>
+                        <div>
+                        </div>
+
                     </div>
                     <div v-else class="flex justify-end mb-2">
                         <div class="bg-purple-500 text-white rounded-xl p-2 max-w-xs break-words"> 

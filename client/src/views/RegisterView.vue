@@ -32,7 +32,7 @@ async function postRegister(e) {
         })
         let jsonData = await postData.json();
         if(!postData.ok){
-            console.log(jsonData);
+            // console.log(jsonData);
             warningText.value = jsonData.message;
             return ;
         }
