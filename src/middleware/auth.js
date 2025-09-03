@@ -39,7 +39,7 @@ export async function refreshToken(req, res, next) { // tạo access token mới
         }
 
         let access_token = await signAccessToken({email: payload.email,userId : payload.userId});
-        return res.status(201).json({
+        return res.status(200).json({
             'access_token': access_token
         })
     } catch (error) {

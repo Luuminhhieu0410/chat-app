@@ -5,40 +5,17 @@ import sequelize from '../config/sequelize.js';
 const initModels = InitModels(sequelize);
 
 export async function checkLogin(email, password) {
-    let allUser = await initModels.Users.findAll({
-        attributes: ['email'],
+    let User = await initModels.Users.findOne({
         where: {
             'email': email,
             'password': password
         }
     });
-    if (allUser.length == 0) return false;
-    return true;
+    if (User === null) return null;
+    return User;
 }
 
-export async function getNameUser(email) {
-    let User = await initModels.Users.findAll({
-        attributes: ['name'],
-        where: {
-            'email': email
-        },
-        limit: 1
-    })
-    // console.log(User[0].name);
-    return User[0].user;
-}
 
-export async function getIdUser(email) {
-    let User = await initModels.Users.findAll({
-        attributes: ['id'],
-        where: {
-            'email': email
-        },
-        limit: 1
-    })
-    // console.log(User[0].id);
-    return User[0].id;
-}
 
 export async function getAllUser(page) {
     try {

@@ -12,7 +12,7 @@ export async function getMessageForTwo(req, res, next) {
     }
 
     let dataMessage = await _getMessageForTwo(senderId,receiverId);
-    res.status(201).json(dataMessage);
+    res.status(200).json(dataMessage);
 }   
 
 export async function sendMessage(req,res,next) {

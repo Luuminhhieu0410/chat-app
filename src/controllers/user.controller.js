@@ -1,14 +1,14 @@
 import { signAccessToken, signRefreshToken } from "../helper/jwt.js";
 import redisClient from "../helper/redis.js";
 import { userLoginValidate, userRegisterValidate } from "../helper/validate.js";
-import { checkLogin, getIdUser, getNameUser, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
+import { checkLogin, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
 // import { io } from "../helper/socket.js";
 import fs from 'fs';
 export default async function loginUser(req, res, next) {
     try {
 
         let { email, password } = req.body;
-        console.log('test' + email + password);
+        // console.log('test' + email + password);
         if (!email || !password) {
             return res.status(500).json({ success: false, 'message': "Vui lòng nhập đầy đủ thông tin" });
         }
@@ -20,25 +20,25 @@ export default async function loginUser(req, res, next) {
         // if (validateMessage.error) {
         //     return res.status(500).json({"message":validateMessage.error.details[0].message});
         // }    
-        if (!(await checkLogin(email, password))) {
+        const User = await checkLogin(email, password);
+        if (!User) {
             return res.status(500).json({ success: false, 'message': 'thông tin không chính xác' })
         }
-        let userId = await getIdUser(email);
-        let name = await getNameUser(email);
+       console.log("======" + JSON.stringify(User))
         // console.log(userId + '  ' + name);
         let payload = {
-            'email': email,
-            'userId': userId,
-            'name': name
+            'email': User.email,
+            'userId': User.id,
+            'name': User.name
         }
 
         let access_token = await signAccessToken(payload);
         let refresh_token = await signRefreshToken(payload);
         // console.log(refresh_token);
         // kiểm tra trước khi lưu , khắc phục lỗi đăng nhập trên nhiều thiết bị
-        let refreshTokenInRedis = await redisClient.get(`refresh_token_${userId}`);
+        let refreshTokenInRedis = await redisClient.get(`refresh_token_${User.id}`);
         if (refreshTokenInRedis === null) {
-            await redisClient.set(`refresh_token_${userId}`, refresh_token, { EX: 7 * 24 * 60 * 60 });
+            await redisClient.set(`refresh_token_${User.id}`, refresh_token, { EX: 7 * 24 * 60 * 60 });
             res.cookie("refresh_token", refresh_token, {
                 httpOnly: true, // document.cookie
                 secure: true, // https
@@ -47,11 +47,11 @@ export default async function loginUser(req, res, next) {
             });
         }
 
-        return res.status(201).json({
+        return res.status(200).json({
             'access_token': access_token,
             success: true,
             'message': 'đăng nhập thành công',
-            userId
+            data: User
         })
 
     } catch (error) {
