@@ -1,7 +1,7 @@
 import { signAccessToken, signRefreshToken } from "../helper/jwt.js";
 import redisClient from "../helper/redis.js";
 import { userLoginValidate, userRegisterValidate } from "../helper/validate.js";
-import { checkLogin, getAllUser as _getAllUser, checkExits, createUser } from "../service/user.service.js";
+import { checkLogin, getAllUser as _getAllUser, getUserByEmail, createUser } from "../service/user.service.js";
 // import { io } from "../helper/socket.js";
 import fs from 'fs';
 export default async function loginUser(req, res, next) {
@@ -83,7 +83,7 @@ export async function registerUser(req, res, next) {
             return res.status(500).json({ success: false, 'message': validateMessage.error.details[0].message });
         }
         // console.log('vượt được điều kiện 2'); 
-        if (await checkExits(email)) {
+        if (await getUserByEmail(email)) {
             fs.unlinkSync(req.file.path);
             return res.status(500).json({ success: false, 'message': 'Email đã tồn tại !' });
         }

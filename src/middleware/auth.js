@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 import redisClient from '../helper/redis.js'
 import { signAccessToken } from "../helper/jwt.js";
+import { getUserByEmail } from "../service/user.service.js";
 
 config();
 export async function protectRoute(req, res, next) {
@@ -39,8 +40,12 @@ export async function refreshToken(req, res, next) { // tạo access token mới
         }
 
         let access_token = await signAccessToken({email: payload.email,userId : payload.userId});
+        
+        const User = await getUserByEmail(payload.email);
+
         return res.status(200).json({
-            'access_token': access_token
+            'access_token': access_token,
+            data: User
         })
     } catch (error) {
         console.log(error);
