@@ -1,7 +1,7 @@
 import _sequelize from "sequelize";
 const { Model, Sequelize } = _sequelize;
 
-export default class chat_rooms extends Model {
+export default class message_attachments extends Model {
   static init(sequelize, DataTypes) {
     return super.init(
       {
@@ -11,18 +11,34 @@ export default class chat_rooms extends Model {
           allowNull: false,
           primaryKey: true,
         },
-        name: {
-          type: DataTypes.STRING(100),
-          allowNull: false,
-          unique: "name",
-        },
-        created_by_user: {
+        message_id: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
           references: {
-            model: "users",
+            model: "messages_room",
             key: "id",
           },
+        },
+        private_message_id: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          references: {
+            model: "private_messages",
+            key: "id",
+          },
+        },
+        file_url: {
+          type: DataTypes.STRING(255),
+          allowNull: false,
+        },
+        file_type: {
+          type: DataTypes.BLOB,
+          allowNull: true,
+          defaultValue: "image",
+        },
+        file_size: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
         },
         created_at: {
           type: DataTypes.DATE,
@@ -31,7 +47,7 @@ export default class chat_rooms extends Model {
       },
       {
         sequelize,
-        tableName: "chat_rooms",
+        tableName: "message_attachments",
         timestamps: false,
         createdAt: false,
         updatedAt: false,
@@ -43,15 +59,14 @@ export default class chat_rooms extends Model {
             fields: [{ name: "id" }],
           },
           {
-            name: "name",
-            unique: true,
+            name: "message_id",
             using: "BTREE",
-            fields: [{ name: "name" }],
+            fields: [{ name: "message_id" }],
           },
           {
-            name: "created_by_user",
+            name: "private_message_id",
             using: "BTREE",
-            fields: [{ name: "created_by_user" }],
+            fields: [{ name: "private_message_id" }],
           },
         ],
       }

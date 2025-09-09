@@ -1,7 +1,7 @@
 import _sequelize from "sequelize";
 const { Model, Sequelize } = _sequelize;
 
-export default class chat_rooms extends Model {
+export default class messages_room extends Model {
   static init(sequelize, DataTypes) {
     return super.init(
       {
@@ -11,18 +11,30 @@ export default class chat_rooms extends Model {
           allowNull: false,
           primaryKey: true,
         },
-        name: {
-          type: DataTypes.STRING(100),
+        room_id: {
+          type: DataTypes.INTEGER,
           allowNull: false,
-          unique: "name",
+          references: {
+            model: "chat_rooms",
+            key: "id",
+          },
         },
-        created_by_user: {
+        user_id: {
           type: DataTypes.INTEGER,
           allowNull: false,
           references: {
             model: "users",
             key: "id",
           },
+        },
+        message: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        message_type: {
+          type: DataTypes.ENUM("text", "media", "mixed"),
+          allowNull: true,
+          defaultValue: "text",
         },
         created_at: {
           type: DataTypes.DATE,
@@ -31,7 +43,7 @@ export default class chat_rooms extends Model {
       },
       {
         sequelize,
-        tableName: "chat_rooms",
+        tableName: "messages_room",
         timestamps: false,
         createdAt: false,
         updatedAt: false,
@@ -43,15 +55,14 @@ export default class chat_rooms extends Model {
             fields: [{ name: "id" }],
           },
           {
-            name: "name",
-            unique: true,
+            name: "room_id",
             using: "BTREE",
-            fields: [{ name: "name" }],
+            fields: [{ name: "room_id" }],
           },
           {
-            name: "created_by_user",
+            name: "user_id",
             using: "BTREE",
-            fields: [{ name: "created_by_user" }],
+            fields: [{ name: "user_id" }],
           },
         ],
       }
