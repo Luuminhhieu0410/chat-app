@@ -1,6 +1,9 @@
-import Sequelize from 'sequelize';
-export default function(sequelize, DataTypes) {
-  return sequelize.define('chat_rooms', {
+import _sequelize from 'sequelize';
+const { Model, Sequelize } = _sequelize;
+
+export default class chat_rooms extends Model {
+  static init(sequelize, DataTypes) {
+  return super.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -15,7 +18,7 @@ export default function(sequelize, DataTypes) {
     created_by_user: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { 
+      references: {
         model: 'users',
         key: 'id'
       }
@@ -23,7 +26,7 @@ export default function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'chat_rooms',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -50,4 +53,5 @@ export default function(sequelize, DataTypes) {
       },
     ]
   });
-};
+  }
+}

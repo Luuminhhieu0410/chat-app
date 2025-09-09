@@ -1,37 +1,38 @@
-import chat_rooms from "./chat_rooms.js";
-import messages from "./messages.js";
-import private_messages from "./private_messages.js";
-import room_members from "./room_members.js";
-import users from "./users.js";
-import { DataTypes } from "sequelize";
+import _sequelize from "sequelize";
+const DataTypes = _sequelize.DataTypes;
+import _chat_rooms from  "./chat_rooms.js";
+import _messages from  "./messages.js";
+import _private_messages from  "./private_messages.js";
+import _room_members from  "./room_members.js";
+import _users from  "./users.js";
 
 export default function initModels(sequelize) {
-  const chatRooms = chat_rooms(sequelize, DataTypes);
-  const Messages = messages(sequelize, DataTypes);
-  const PrivateMessages = private_messages(sequelize, DataTypes);
-  const RoomMembers = room_members(sequelize, DataTypes);
-  const Users = users(sequelize, DataTypes);
+  const chat_rooms = _chat_rooms.init(sequelize, DataTypes);
+  const messages = _messages.init(sequelize, DataTypes);
+  const private_messages = _private_messages.init(sequelize, DataTypes);
+  const room_members = _room_members.init(sequelize, DataTypes);
+  const users = _users.init(sequelize, DataTypes);
 
-  Messages.belongsTo(chatRooms, { as: "room", foreignKey: "room_id" });
-  chatRooms.hasMany(Messages, { as: "messages", foreignKey: "room_id" });
-  RoomMembers.belongsTo(chatRooms, { as: "room", foreignKey: "room_id" });
-  chatRooms.hasMany(RoomMembers, { as: "room_members", foreignKey: "room_id" });
-  chatRooms.belongsTo(Users, { as: "created_by_user_user", foreignKey: "created_by_user" });
-  Users.hasMany(chatRooms, { as: "chat_rooms", foreignKey: "created_by_user" });
-  Messages.belongsTo(Users, { as: "user", foreignKey: "user_id" });
-  Users.hasMany(Messages, { as: "messages", foreignKey: "user_id" });
-  PrivateMessages.belongsTo(Users, { as: "sender", foreignKey: "sender_id" });
-  Users.hasMany(PrivateMessages, { as: "private_messages", foreignKey: "sender_id" });
-  PrivateMessages.belongsTo(Users, { as: "receiver", foreignKey: "receiver_id" });
-  Users.hasMany(PrivateMessages, { as: "receiver_private_messages", foreignKey: "receiver_id" });
-  RoomMembers.belongsTo(Users, { as: "user", foreignKey: "user_id" });
-  Users.hasMany(RoomMembers, { as: "room_members", foreignKey: "user_id" });
+  messages.belongsTo(chat_rooms, { as: "room", foreignKey: "room_id"});
+  chat_rooms.hasMany(messages, { as: "messages", foreignKey: "room_id"});
+  room_members.belongsTo(chat_rooms, { as: "room", foreignKey: "room_id"});
+  chat_rooms.hasMany(room_members, { as: "room_members", foreignKey: "room_id"});
+  chat_rooms.belongsTo(users, { as: "created_by_user_user", foreignKey: "created_by_user"});
+  users.hasMany(chat_rooms, { as: "chat_rooms", foreignKey: "created_by_user"});
+  messages.belongsTo(users, { as: "user", foreignKey: "user_id"});
+  users.hasMany(messages, { as: "messages", foreignKey: "user_id"});
+  private_messages.belongsTo(users, { as: "sender", foreignKey: "sender_id"});
+  users.hasMany(private_messages, { as: "private_messages", foreignKey: "sender_id"});
+  private_messages.belongsTo(users, { as: "receiver", foreignKey: "receiver_id"});
+  users.hasMany(private_messages, { as: "receiver_private_messages", foreignKey: "receiver_id"});
+  room_members.belongsTo(users, { as: "user", foreignKey: "user_id"});
+  users.hasMany(room_members, { as: "room_members", foreignKey: "user_id"});
 
   return {
-    chatRooms,
-    Messages,
-    PrivateMessages,
-    RoomMembers,
-    Users,
+    chat_rooms,
+    messages,
+    private_messages,
+    room_members,
+    users,
   };
 }

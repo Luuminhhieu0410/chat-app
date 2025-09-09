@@ -1,6 +1,9 @@
-import Sequelize from 'sequelize';
-export default function(sequelize, DataTypes) {
-  return sequelize.define('private_messages', {
+import _sequelize from 'sequelize';
+const { Model, Sequelize } = _sequelize;
+
+export default class private_messages extends Model {
+  static init(sequelize, DataTypes) {
+  return super.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -26,11 +29,16 @@ export default function(sequelize, DataTypes) {
     message: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    is_read: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,
     tableName: 'private_messages',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -56,4 +64,5 @@ export default function(sequelize, DataTypes) {
       },
     ]
   });
-};
+  }
+}

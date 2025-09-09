@@ -1,6 +1,9 @@
-import { Sequelize as _Sequelize } from 'sequelize';
-export default function(sequelize, DataTypes) {
-  return sequelize.define('room_members', {
+import _sequelize from 'sequelize';
+const { Model, Sequelize } = _sequelize;
+
+export default class room_members extends Model {
+  static init(sequelize, DataTypes) {
+  return super.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -26,7 +29,7 @@ export default function(sequelize, DataTypes) {
     joined_at: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: _Sequelize.fn('current_timestamp')
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
     }
   }, {
     sequelize,
@@ -57,4 +60,5 @@ export default function(sequelize, DataTypes) {
       },
     ]
   });
-};
+  }
+}

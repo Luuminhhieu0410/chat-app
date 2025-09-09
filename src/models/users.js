@@ -1,6 +1,9 @@
+import _sequelize from 'sequelize';
+const { Model, Sequelize } = _sequelize;
 
-export default function(sequelize, DataTypes) {
-  return sequelize.define('users', {
+export default class users extends Model {
+  static init(sequelize, DataTypes) {
+  return super.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -8,8 +11,8 @@ export default function(sequelize, DataTypes) {
       primaryKey: true
     },
     name: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
+      type: DataTypes.STRING(100),
+      allowNull: true
     },
     email: {
       type: DataTypes.STRING(100),
@@ -21,15 +24,28 @@ export default function(sequelize, DataTypes) {
       allowNull: false
     },
     avatar: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      defaultValue: "default_user.jpg"
+    },
+    is_online: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 0
+    },
+    last_seen: {
+      type: DataTypes.DATE,
       allowNull: true
+    },
+    connection_count: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
-    sequelize, // Kết nối Sequelize
-    modelName: 'users', // Tên Model
-    tableName: 'users', // Tên bảng trong database
-    timestamps: false, // Không sử dụng createdAt, updatedAt
-    freezeTableName: true, // Tránh tự động đổi tên bảng
+    sequelize,
+    tableName: 'users',
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -37,14 +53,6 @@ export default function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "name",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "name" },
         ]
       },
       {
@@ -57,4 +65,5 @@ export default function(sequelize, DataTypes) {
       },
     ]
   });
-};
+  }
+}

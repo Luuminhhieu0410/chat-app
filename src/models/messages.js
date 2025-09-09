@@ -1,6 +1,9 @@
-import Sequelize from 'sequelize';
-export default function(sequelize, DataTypes) {
-  return sequelize.define('messages', {
+import _sequelize from 'sequelize';
+const { Model, Sequelize } = _sequelize;
+
+export default class messages extends Model {
+  static init(sequelize, DataTypes) {
+  return super.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -30,7 +33,7 @@ export default function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'messages',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -56,4 +59,5 @@ export default function(sequelize, DataTypes) {
       },
     ]
   });
-};
+  }
+}
