@@ -1,4 +1,4 @@
-import loginUser, { getAllUser, registerUser ,logOut} from '../controllers/user.controller.js';
+import loginUser, { getAllUser, registerUser ,logOut, getConverSation} from '../controllers/user.controller.js';
 import express from 'express'
 import { protectRoute } from '../middleware/auth.js';
 import path from 'path';
@@ -40,6 +40,7 @@ const upload = multer({
 route.post('/login', loginUser);
 route.post('/register', upload.single('avatar'), registerUser);
 route.post('/pages/:page', protectRoute, getAllUser); // lấy dữ liệu users; 
+route.get('/conversations',protectRoute,getConverSation)
 route.post('/logout',protectRoute,logOut);
 
 export default route;

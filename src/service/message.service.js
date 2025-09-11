@@ -3,20 +3,21 @@ import sequelize from '../config/sequelize.js';
 import { Op} from "sequelize";
 
 // Lấy danh sách tin nhắn giữa hai người
-// GET /api/messages/conversation/{sender_id}/{reciever_id}
+// GET /api/messages/conversation/{reciever_id}
 const initModels = InitModels(sequelize);
 
 export async function getMessageForTwo(sender_id, receiver_id) {
     try {
-        let messageTwoPeople = await initModels.PrivateMessages.findAll({
-            attributes: ['id','sender_id', 'receiver_id', 'message', 'created_at'],
+        let messageTwoPeople = await initModels.private_messages.findAll({
             where: {
                 [Op.or]: [
                     { sender_id: sender_id, receiver_id: receiver_id },
                     { sender_id: receiver_id, receiver_id: sender_id },
                 ],
             },
-            order: [['created_at', 'ASC']],
+            // offset : offset,
+            limit: 10,
+            order: [['created_at', 'DESC']],
         });
         return messageTwoPeople;
     } catch (error) {
@@ -28,7 +29,7 @@ export async function getMessageForTwo(sender_id, receiver_id) {
 
 export async function sendMessage(message, senderId, receiverId) {
     try {
-        let insertData = await initModels.PrivateMessages.create({
+        let insertData = await initModels.private_messages.create({
             'message': message,
             'sender_id': senderId,
             'receiver_id': receiverId
@@ -43,7 +44,7 @@ export async function sendMessage(message, senderId, receiverId) {
 
 export async function deleteMessageInTwo(messageId){
     try{
-        let dataDeleted = await initModels.PrivateMessages.destroy({
+        let dataDeleted = await initModels.private_messages.destroy({
             where :{
               
                 'id':messageId

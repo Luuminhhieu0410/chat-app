@@ -8,9 +8,11 @@ import { getUserByEmail } from "../service/user.service.js";
 config();
 export async function protectRoute(req, res, next) {
     try {
+        if(!req.header('Authorization')) return res.status(401).json({ message: "Missing token in request header" });
         let access_token = req.header('Authorization').split(' ')[1];
-        if (!access_token) return res.status(401).json({ message: "Unauthorized" });
         // console.log('access_token : ' + access_token);
+
+        if (!access_token) return res.status(401).json({ message: "Unauthorized" });
         jwt.verify(access_token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
             if (err) return res.status(403).json({ message: "Token hết hạn hoặc không hợp lệ" });
             req.user = payload; // Lưu thông tin user vào request đẩy xuống cho route tiếp
@@ -19,7 +21,7 @@ export async function protectRoute(req, res, next) {
         // console.log(JSON.stringify(req.user));
     } catch (error) {
 
-        console.log('access token hết hạn ');
+        console.log(error);
         next(createHttpError(401, 'Unauthorizaion'));
     }
 }

@@ -1,7 +1,7 @@
 import { signAccessToken, signRefreshToken } from "../helper/jwt.js";
 import redisClient from "../helper/redis.js";
 import { userLoginValidate, userRegisterValidate } from "../helper/validate.js";
-import { checkLogin, getAllUser as _getAllUser, getUserByEmail, createUser } from "../service/user.service.js";
+import { checkLogin, getAllUser as _getAllUser, getUserByEmail, createUser, getConversationForSibar } from "../service/user.service.js";
 // import { io } from "../helper/socket.js";
 import fs from 'fs';
 export default async function loginUser(req, res, next) {
@@ -105,9 +105,14 @@ export async function registerUser(req, res, next) {
 export async function getAllUser(req, res, next) {
     let page = req.params.page;
     let allUser = await _getAllUser(page);
-    res.status(201).json(allUser);
+    res.status(200).json(allUser);
 }
-
+export async function getConverSation(req, res, next) {
+    let {userId} = req.user;
+    console.log("-----" , userId);
+    let conversation = await getConversationForSibar(userId);
+    res.status(200).json(conversation);
+}
 export async function logOut(req, res, next) {
     let { userId } = req.user // lấy từ protectRoute trong auth.js
     redisClient.del(`refresh_token_${userId}`);
