@@ -11,10 +11,13 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "@/stores/UserStore";
 import { LoginApiRespone } from "../types/User.type";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { Eye, EyeOff } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { API } from "@/utils/apiclient";
+import { toast } from "sonner";
 const LoginPage: React.FC = () => {
   const { setUser } = useUserStore();
 
@@ -30,22 +33,21 @@ const LoginPage: React.FC = () => {
 
     setIsSubmitting(true);
     setTimeout(async () => {
-      const res = await fetch("http://localhost:5000/api/user/login", {
-        method: "POST",
-        body: JSON.stringify({ email: email, password: password }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) {
-        console.log("false");
+      try {
+        const api = new API();
+        
+        const loginApiRespone: LoginApiRespone = await api.post(
+          "/api/user/login",
+          { email: email, password: password }
+        );
+        setUser({...loginApiRespone.data,access_token: loginApiRespone.access_token});
+        return navigate("/");
+      } catch (error) {
         setIsSubmitting(false);
-        return;
+        // console.log("----" + error.message);
+        toast.error("Đăng nhập thất bại" , {description:<span className="font-extrabold">{error.message || ""}</span> , position:'top-center'});
       }
-      const loginApiRespone: LoginApiRespone = await res.json();
-      setUser(loginApiRespone.data);
-      return navigate("/");
-    }, 2000);
+    }, 1000);
   };
 
   return (
@@ -53,6 +55,14 @@ const LoginPage: React.FC = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           {/* <CardTitle className="text-2xl text-center">Login</CardTitle> */}
+          <Avatar className="flex justify-center items-center">
+            <AvatarImage
+              className="w-[130px] h-[100px]"
+              src="/logo.png"
+              alt="@shadcn"
+            />
+            <AvatarFallback>Logo</AvatarFallback>
+          </Avatar>
           <CardDescription>
             <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg">
               <button className="flex items-center justify-center w-full bg-white dark:bg-gray-900 border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 dark:text-white hover:bg-gray-200 focus:outline-none ">
@@ -65,7 +75,6 @@ const LoginPage: React.FC = () => {
                   version="1.1"
                 >
                   {" "}
-                  
                   <defs> </defs>{" "}
                   <g
                     id="Icons"
@@ -138,7 +147,7 @@ const LoginPage: React.FC = () => {
             </div>
             <div className="grid gap-2 relative">
               <Label htmlFor="password">Password</Label>
-             
+
               <Input
                 disabled={isSubmitting}
                 id="password"
@@ -147,7 +156,7 @@ const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-               <button
+              <button
                 type="button"
                 tabIndex={-1}
                 className="absolute inset-y-0 right-0 pr-3 top-5 flex items-center"
