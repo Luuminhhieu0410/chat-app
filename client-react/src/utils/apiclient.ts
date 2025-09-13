@@ -29,25 +29,21 @@ export class API {
     }
     return await res.json();
   }
-  public async getNoToken(endPoint: string) {
-    return await this.request(endPoint, {});
+  public async get(endPoint: string, options: RequestInit = {}) {
+    return await this.request(endPoint, {...options});
   }
 
-  public async getWithToken(endPoint: string, token: string) {
-    this.setToken(token);
-    return await this.request(endPoint, {});
-  }
-
-  public async post(endPoint: string, body: unknown) {
+  public async post(endPoint: string, body: unknown, options: RequestInit = {}) {
     // console.log('----' + JSON.stringify(body));
     return await this.request(endPoint, {
+      ...options,
       method: "POST",
       body: JSON.stringify(body),
     });
   }
 
   setToken(token: string) {
-    this.headers["Authorization"] = "Bearer " + token;
+    this.headers.set("Authorization" , "Bearer " + token); 
   }
 }
 

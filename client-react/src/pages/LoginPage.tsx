@@ -38,7 +38,8 @@ const LoginPage: React.FC = () => {
         
         const loginApiRespone: LoginApiRespone = await api.post(
           "/api/user/login",
-          { email: email, password: password }
+          { email: email, password: password },
+          {credentials : 'include'}
         );
         setUser({...loginApiRespone.data,access_token: loginApiRespone.access_token});
         return navigate("/");

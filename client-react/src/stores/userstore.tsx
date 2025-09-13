@@ -6,19 +6,26 @@ export const useUserStore = create<UserState>((set) => ({
   name: null,
   email: null,
   avatar: null,
-  password:null,
-  token: null,
+  password: null,
+  access_token: null,
   isAuthenticated: false,
   loading: false,
   setUser: (user) =>
-  set((state) => ({ ...state, ...user, isAuthenticated: true })),
+    set((state) => {
+      // console.log('---- data set user store' , JSON.stringify(user));
+      return {
+        ...state,
+        ...user,
+        isAuthenticated: true,
+      };
+    }),
   clearUser: () =>
     set({
       id: null,
       name: null,
       email: null,
       avatar: null,
-      token: null,
+      access_token: null,
       isAuthenticated: false,
       loading: false,
     }),
