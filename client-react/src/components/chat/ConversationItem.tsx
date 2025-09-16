@@ -2,6 +2,7 @@ import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { server } from "@/utils/server";
 
 interface ConversationItemProps {
   id: string;
@@ -26,6 +27,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   isOnline,
   onClick,
 }) => {
+  // console.log("_++++++" + server.urlImage + '/' + avatarSrc);
   return (
     <div
       className={cn(
@@ -37,7 +39,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
     >
       <div className="relative">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={avatarSrc} alt={name} />
+          <AvatarImage src={server.baseUrlImage + '/' + avatarSrc} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
         {isOnline && (
