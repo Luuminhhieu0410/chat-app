@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { server } from "@/utils/server";
 
 interface ConversationItemProps {
-  id: string;
+  id: number;
   name: string;
   lastMessage: string;
   avatarSrc: string;
@@ -13,7 +13,7 @@ interface ConversationItemProps {
   isActive?: boolean;
   timeAgo: string;
   isOnline?: boolean;
-  onClick: (id: string) => void;
+  onClick: (id: number, name: string, avatar: string) => void;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
@@ -33,13 +33,17 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       className={cn(
         "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors",
         "hover:bg-muted/50",
-        isActive && "bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50", // Adjusted active background
+        isActive &&
+          "bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50" // Adjusted active background
       )}
-      onClick={() => onClick(id)}
+      onClick={() => {
+        localStorage.setItem('lastUserChat',JSON.stringify({id,name,avatarSrc}));
+        onClick(id, name, avatarSrc);
+      }}
     >
       <div className="relative">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={server.baseUrlImage + '/' + avatarSrc} alt={name} />
+          <AvatarImage src={server.baseUrlImage + "/" + avatarSrc} alt={name} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
         {isOnline && (
@@ -48,9 +52,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       </div>
       <div className="flex-1 overflow-hidden">
         <h3 className="font-medium text-sm truncate">{name}</h3>
-        <p className="text-muted-foreground text-xs truncate">
-          {lastMessage}
-        </p>
+        <p className="text-muted-foreground text-xs truncate">{lastMessage}</p>
       </div>
       <div className="flex flex-col items-end gap-1">
         <span className="text-xs text-muted-foreground">{timeAgo}</span>

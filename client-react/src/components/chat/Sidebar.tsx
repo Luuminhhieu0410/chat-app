@@ -6,20 +6,14 @@ import ConversationItem from "./ConversationItem";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import SidebarSkeleton from "@/skeletons/SidebarSkeleton";
+import { Conversation } from "@/types/Message.type";
+import { useLastConversation } from "@/hooks/useLastConversation";
 
 interface SidebarProps {
-  conversations: Array<{
-    id: string;
-    name: string;
-    lastMessage: string;
-    avatarSrc: string;
-    unreadCount?: number;
-    timeAgo: string;
-    isOnline?: boolean;
-  }>;
+  conversations: Array<Conversation>;
   isLoadingConversation: boolean;
-  activeConversationId: string | null;
-  onSelectConversation: (id: string) => void;
+  activeConversation: Conversation;
+  setActiveConversationId: (id: number, name:string, avatar:string) => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -27,18 +21,20 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({
   conversations,
   isLoadingConversation,
-  activeConversationId,
-  onSelectConversation,
+  activeConversation,
+  setActiveConversationId,
   isOpen,
   onClose,
 }) => {
+  // console.log('====' , conversations);
   const [searchTerm, setSearchTerm] = React.useState("");
-
+  const {lastConversation , setLastConversation} = useLastConversation();
   const filteredConversations = conversations.filter(
     (conv) =>
       conv.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       conv.lastMessage.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   return (
     <aside
@@ -48,6 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
+
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-xl font-semibold">Messages</h2>{" "}
         {/* Changed title */}
@@ -87,10 +84,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <ConversationItem
                     key={conv.id}
                     {...conv}
-                    isActive={conv.id === activeConversationId}
-                    onClick={(id) => {
-                      onSelectConversation(id);
-                      onClose();
+                    isActive={conv.id == activeConversation.id}
+                    onClick={() => {
+                      setLastConversation(conv);
+                      setActiveConversationId(conv.id, conv.name, conv.avatarSrc)
+                      onClose();  
                     }}
                   />
                 ))

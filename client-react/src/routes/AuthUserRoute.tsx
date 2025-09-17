@@ -36,7 +36,9 @@ const AuthUserRoute = ({ children }: ProtectedRouteProps) => {
   }, []);
 
   if (loading) {
-    return <LoadingPage />;
+    return <div>
+      
+    </div>;
   }
 
   if (!isAuthenticated) {
