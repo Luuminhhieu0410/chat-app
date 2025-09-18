@@ -4,7 +4,8 @@ import { useUserStore } from "@/stores/UserStore";
 import { LoginApiRespone } from "@/types/User.type";
 import { server } from "@/utils/server";
 import LoadingPage from "@/components/loading/LoadingPage";
-import { API } from "@/utils/apiclient";
+import { useAPI } from "@/hooks/useAPI";
+
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
@@ -12,14 +13,15 @@ type ProtectedRouteProps = {
 
 const AuthUserRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, setUser, clearUser } = useUserStore();
+  const {get} = useAPI();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const api = new API();
+     
         
-        const dataApiRefreshtoken: LoginApiRespone = await api.get('/api/user/refresh-token',{credentials:'include'})
+        const dataApiRefreshtoken: LoginApiRespone = await get('/api/user/refresh-token',{credentials:'include'})
         setUser({
           ...dataApiRefreshtoken.data,
           access_token: dataApiRefreshtoken.access_token,

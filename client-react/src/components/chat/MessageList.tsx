@@ -5,13 +5,14 @@ import { Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Conversation, Message } from "@/types/Message.type";
 import { useUserStore } from "@/stores/UserStore";
+import ChatSkeleton from "@/skeletons/ChatSkeleton";
 
 interface MessageListProps {
   messages: Message[];
-
+  isLoadingChat : boolean
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages}) => {
+const MessageList: React.FC<MessageListProps> = ({ messages , isLoadingChat}) => {
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     if (scrollAreaRef.current) {
@@ -21,7 +22,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages}) => {
 
   return (
     <ScrollArea className="flex-1 p-4 space-y-4" ref={scrollAreaRef}>
-      {messages.map((msg) => (
+      
+      {isLoadingChat ? <ChatSkeleton /> :  messages.map((msg) => (
         <MessageBubble
           id={msg.id}
           sender_id={msg.sender_id}

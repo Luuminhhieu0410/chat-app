@@ -16,11 +16,12 @@ import { LoginApiRespone } from "../types/User.type";
 import { Spinner } from "@/components/ui/shadcn-io/spinner";
 import { Eye, EyeOff } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { API } from "@/utils/apiclient";
+// import { API } from "@/utils/apiclient";
 import { toast } from "sonner";
+import { useAPI } from "@/hooks/useAPI";
 const LoginPage: React.FC = () => {
   const { setUser } = useUserStore();
-
+  const { get , setToken, post} = useAPI();
   const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -34,9 +35,9 @@ const LoginPage: React.FC = () => {
     setIsSubmitting(true);
     setTimeout(async () => {
       try {
-        const api = new API();
+       
         
-        const loginApiRespone: LoginApiRespone = await api.post(
+        const loginApiRespone: LoginApiRespone = await post(
           "/api/user/login",
           { email: email, password: password },
           {credentials : 'include'}

@@ -5,21 +5,21 @@ import MessageList from "./MessageList";
 import ChatInput from "./ChatInput";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { API } from "@/utils/apiclient";
+
 import { useUserStore } from "@/stores/UserStore";
 import { Conversation, Message } from "@/types/Message.type";
-
-
-const api = new API();
+import { useAPI } from "../../hooks/useAPI";
 
 const ChatLayout: React.FC = () => {
   const isMobile = useIsMobile();
+  const { get, setToken, post } = useAPI();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoadConversation, setIsLoadingConversation] =
     useState<boolean>(true);
+  const [isLoadingChat, setIsLoadingChat] = useState<boolean>(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<
-     number | null
+    number | null
   >(null);
   const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -30,8 +30,8 @@ const ChatLayout: React.FC = () => {
   // load conversations (sidebar)
   useEffect(() => {
     const fetchConversations = async () => {
-      api.setToken(access_token);
-      const data = await api.get("/api/user/conversations");
+      setToken(access_token);
+      const data = await get("/api/user/conversations");
       // console.log("-----", data);
       setConversations(data);
       setIsLoadingConversation(false);
@@ -46,13 +46,21 @@ const ChatLayout: React.FC = () => {
 
   // load messages khi đổi conversation
   useEffect(() => {
+    setCurrentMessages([]);
+      setIsLoadingChat(true);
+
     if (!activeConversationId) return;
     const fetchMessages = async () => {
-      const messsages =await api.get(`/api/message/conversation/${activeConversationId}`);
+      const messsages = await get( 
+        `/api/message/conversation/${activeConversationId}`
+      );
       // setIsTyping(false);
       setCurrentMessages(messsages);
+      setIsLoadingChat(false);
     };
-    fetchMessages();
+    setTimeout(() => {
+      fetchMessages();
+    }, 2000);
   }, [activeConversationId]);
 
   const activeConversation = conversations.find(
@@ -115,7 +123,10 @@ const ChatLayout: React.FC = () => {
                 membersCount={2} // tuỳ chỉnh sau
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
               />
-              <MessageList messages={currentMessages} />
+              <MessageList
+                messages={currentMessages}
+                isLoadingChat={isLoadingChat}
+              />
               <ChatInput onSendMessage={handleSendMessage} />
             </>
           )

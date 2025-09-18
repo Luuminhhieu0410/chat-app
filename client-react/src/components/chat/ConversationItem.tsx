@@ -13,7 +13,7 @@ interface ConversationItemProps {
   isActive?: boolean;
   timeAgo: string;
   isOnline?: boolean;
-  onClick: (id: number, name: string, avatar: string) => void;
+  onClick: () => void;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
@@ -38,7 +38,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       )}
       onClick={() => {
         localStorage.setItem('lastUserChat',JSON.stringify({id,name,avatarSrc}));
-        onClick(id, name, avatarSrc);
+        onClick();
       }}
     >
       <div className="relative">
