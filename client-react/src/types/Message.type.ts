@@ -7,6 +7,7 @@ export interface Message { // messgae API
   message_type: string;
   created_at: string;
 }
+
 export interface Conversation {
   id: number;
   name: string;

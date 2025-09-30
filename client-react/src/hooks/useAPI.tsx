@@ -26,6 +26,7 @@ export function useAPI() {
           credentials: "include",
         });
         if (!res.ok) {
+          
           const errorAPI = await res.json();
           throw new Error(errorAPI.message || "Error: No Message");
         }

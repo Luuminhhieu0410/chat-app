@@ -14,7 +14,7 @@ export async function protectRoute(req, res, next) {
 
         if (!access_token) return res.status(401).json({ message: "Unauthorized" });
         jwt.verify(access_token, process.env.ACCESS_TOKEN_SECRET, (err, payload) => {
-            if (err) return res.status(403).json({ message: "Token hết hạn hoặc không hợp lệ" });
+            if (err) return res.status(401).json({ message: "Token hết hạn hoặc không hợp lệ" });
             req.user = payload; // Lưu thông tin user vào request đẩy xuống cho route tiếp
             next(); 
         });

@@ -3,6 +3,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { server } from "@/utils/server";
+import { useUserStore } from "@/stores/UserStore";
+import useSocket from "@/hooks/useSocket";
+
 
 interface ConversationItemProps {
   id: number;
@@ -28,6 +31,8 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   onClick,
 }) => {
   // console.log("_++++++" + server.urlImage + '/' + avatarSrc);
+  const { id: userLoginId } = useUserStore();
+  const {socket} = useSocket()
   return (
     <div
       className={cn(
@@ -37,7 +42,14 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           "bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50" // Adjusted active background
       )}
       onClick={() => {
-        localStorage.setItem('lastUserChat',JSON.stringify({id,name,avatarSrc}));
+        const roomId = [userLoginId, id].sort().join("_"); // tạo id room
+        console.log('room id (ConversationItem)' + roomId);
+        socket.emit("send-room", roomId);
+        
+        localStorage.setItem(
+          "lastUserChat",
+          JSON.stringify({ id, name, avatarSrc })
+        );
         onClick();
       }}
     >

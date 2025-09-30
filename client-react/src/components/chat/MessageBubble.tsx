@@ -20,12 +20,12 @@ created_at
   return (
     <div
       className={cn(
-        "flex w-full items-end gap-2", // Added items-end and gap-2 for avatar alignment
+        "flex w-full items-end gap-2", 
         isSender ? "justify-end" : "justify-start"
       )}
     >
       {!isSender &&
-        lastConversation && ( // Display avatar for receiver
+        lastConversation && ( 
           <Avatar className="h-8 w-8">
             <AvatarImage src={server.baseUrlImage + `/${lastConversation.avatarSrc}`} />
             <AvatarFallback>{lastConversation.name?.charAt(0)}</AvatarFallback>
@@ -35,8 +35,8 @@ created_at
         className={cn(
           "max-w-[70%] p-3 rounded-lg shadow-sm",
           isSender
-            ? "bg-chat-sender-bubble text-primary-foreground rounded-br-none" // Use custom sender color
-            : "bg-chat-receiver-bubble text-foreground rounded-bl-none" // Use custom receiver color
+            ? "bg-chat-sender-bubble text-primary-foreground rounded-br-none" 
+            : "bg-chat-receiver-bubble text-foreground rounded-bl-none" 
         )}
       >
         <p className="text-sm break-words">{message}</p>
@@ -47,7 +47,7 @@ created_at
             "text-right"
           )}
         >
-          {created_at}
+          { new Date(created_at).toLocaleString()}
         </span>
       </div>
     </div>
@@ -55,3 +55,4 @@ created_at
 };
 
 export default MessageBubble;
+  

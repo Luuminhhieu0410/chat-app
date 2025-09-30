@@ -17,7 +17,7 @@ import { io, app, server } from './src/helper/socket.js'
 
 
 app.use(cors({
-    origin: "http://localhost:3000",  // domain frontend 
+    origin: ["http://localhost:8080","http://localhost:3000", "http://localhost:8081"],  // domain frontend 
     credentials: true                 // cho phép gửi cookie (bug khi không cùng domain giữa backend và front-end , fetch sẽ không tự động gửi cookie)
 }));
 app.use(express.json());
@@ -34,10 +34,10 @@ app.use(
 
 
 app.use('/home', express.static(path.join(path.resolve(), '/src/public'))) // lỗi __dirname
-app.use('/home', express.static(path.join(path.resolve(), '/uploads'))) // lỗi __dirname
+app.use('/images', express.static(path.join(path.resolve(), '/uploads'))) // lỗi __dirname
 app.use('/api/captcha', captchaRoute);
 app.use('/api/user', userRoute);
-app.use('/api/user/refresh-token', refreshToken)
+app.get('/api/user/refresh-token', refreshToken)
 app.use('/api/message', messageRoute);
 
 app.post('/test', multer({ dest: 'uploads' }).single('avatar'), (req, res, next) => {
@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-    res.json({
+    res.status(err.status || 500).json({
         status: err.status || 500,
         message: err.message
     })

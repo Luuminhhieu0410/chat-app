@@ -1,4 +1,4 @@
-import { LastConversationContext } from "@/context/LastUserChat";
+import { LastConversationContext } from "@/context/LastUserChatContext";
 import { useContext } from "react";
 
 export const useLastConversation = () => {

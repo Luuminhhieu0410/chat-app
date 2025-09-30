@@ -13,6 +13,7 @@ export async function getMessageForTwo(req, res, next) {
 
 export async function sendMessage(req,res,next) {
     let {message} = req.body;
+    if(!message) return res.status(500).json({"message":"error"});
     console.log('tin nhan gui ' + message);
     let {receiverId} = req.params;
     console.log('id nguoi nhan ' + receiverId);

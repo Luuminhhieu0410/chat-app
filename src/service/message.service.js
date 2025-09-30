@@ -16,8 +16,8 @@ export async function getMessageForTwo(sender_id, receiver_id) {
                 ],
             },
             // offset : offset,
-            limit: 10,
-            order: [['created_at', 'DESC']],
+            // limit: 10,
+            order: [['created_at', 'ASC']],
         });
         return messageTwoPeople;
     } catch (error) {

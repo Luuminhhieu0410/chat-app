@@ -57,7 +57,7 @@ async function clickUserToChat(receiverId) { // sự kiện click vào ai đó �
         console.log('server send ' + data);
     });
 
-    let getChat = await fetch(`${urlServer}/api/message/conversation/${userIdLogin}/${receiverId}`, { // load lịch  sử chat
+    let getChat = await fetch(`${urlServer}/api/message/conversation/${receiverId}`, { // load lịch  sử chat
         headers: {
             "Authorization": `Bearer ${token}`
         }

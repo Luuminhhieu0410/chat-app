@@ -1,0 +1,2 @@
+1. lỗi khi ở web quá thời gian access_token , phải reload lại 
+2. mới đầu vào giao diện chính sẽ không load được tin nhắn , phải chuyển qua người khác và về lại người cần nhắn . 

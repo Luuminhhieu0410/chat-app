@@ -16,15 +16,16 @@ io.on("connection", (socket) => {
 
   
     io.emit('user-connect', socket.id);
+    io.emit('ping',"ping");
   
-
   socket.on("send-room", (roomId) => {
       socket.join(roomId);
       console.log(`User ${socket.id} joined room: ${roomId}`);
   });
 
   socket.on("send-message", (data) => { 
-      console.log(data);
+
+      console.log('===== ' + JSON.stringify(data));
       socket.to(data.roomId).emit("receive", data.message);
   });
   

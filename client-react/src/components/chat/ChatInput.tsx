@@ -1,17 +1,21 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Smile, Paperclip, Send, Mic } from "lucide-react"; // Added Mic icon
+import { Smile, Paperclip, Send, Mic } from "lucide-react";
+
 
 interface ChatInputProps {
+  roomId: string;
+
   onSendMessage: (message: string) => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ roomId , onSendMessage }) => {
   const [message, setMessage] = React.useState("");
 
   const handleSend = () => {
     if (message.trim()) {
+      // gửi message qua socket
       onSendMessage(message.trim());
       setMessage("");
     }
@@ -41,7 +45,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
       <Button variant="ghost" size="icon">
         <Mic className="h-5 w-5 text-muted-foreground" />
       </Button>
-      <Button onClick={handleSend} disabled={!message.trim()} size="icon"> {/* Send button as icon only */}
+      <Button onClick={handleSend} disabled={!message.trim()} size="icon">
         <Send className="h-5 w-5" />
         <span className="sr-only">Send message</span>
       </Button>
